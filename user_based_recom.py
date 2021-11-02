@@ -4,13 +4,17 @@ import numpy as np
 ratings_data = pd.read_csv('ml-latest-small/ratings.csv')
 movies_data = pd.read_csv('ml-latest-small/movies.csv')
 
+# Pearson correlation function
 def pearson_correlation(a, b, rated_intersection):
+    # Averages for the pearson function
     average_a = float(sum(a['rating'])/len(a['rating']))
     average_b = float(sum(b['rating'])/len(b['rating']))
     numerator = 0
     denominator1 = 0
     denominator2 = 0
     sim_a_b = 0
+
+    # applying the pearson correlation function iteratively on every common movie
     for common_movie_id in rated_intersection['movieId']:
         a_rating_for_movie = float(a[a['movieId'] == common_movie_id].rating)
         b_rating_for_movie = float(b[b['movieId'] == common_movie_id].rating)
@@ -19,14 +23,18 @@ def pearson_correlation(a, b, rated_intersection):
 
         denominator1 += (a_rating_for_movie - average_a) * (a_rating_for_movie - average_a)
         denominator2 += (b_rating_for_movie - average_b) * (b_rating_for_movie - average_b)
+
+        # Calling the function and identifying similarities of the users
         if (denominator1 > 0 and denominator2 > 0):
             sim_a_b = numerator / ((np.sqrt(denominator1)) * (np.sqrt(denominator2)))
 
     return sim_a_b
 
-
 def matching_users_dataframe(input_user):
+    # Taking the unique users lists
     rated_all_users = ratings_data['userId'].unique()
+
+    # ratings added by the input user
     input_user_ratings = ratings_data[ratings_data['userId']==input_user]
 
     correlations_list = list()
@@ -34,13 +42,17 @@ def matching_users_dataframe(input_user):
 
     for iterative_user_id in rated_all_users:
         if iterative_user_id != input_user:
+            # merge input user movies and current iteration users ratings on same movie
             iterative_user_ratings = ratings_data[ratings_data['userId'] == iterative_user_id]
             rated_intersection = pd.merge(input_user_ratings, iterative_user_ratings, on=['movieId', 'movieId'], how='inner')
+
+            #if there are any common movies, then calculate pearson correlation
             if not rated_intersection.empty:
                 similarity_a_b = pearson_correlation(input_user_ratings, iterative_user_ratings, rated_intersection)
                 correlations_list.append(similarity_a_b)
                 similar_users.append(iterative_user_id)
 
+    # new dataframe build based on similarity matrix
     dataframe_with_similar_data = pd.DataFrame(list(zip(similar_users, correlations_list)), columns = ['userId', 'correlation'])
 
     return dataframe_with_similar_data
@@ -93,7 +105,7 @@ def user_based_recommendation():
     print("====== Length of data ======")
     print(len(ratings_data))
 
-    user_id_input = 10
+    user_id_input = int(input("Type in your user id: "))
     similar_user_results_count = 10
     recommendable_movies_results_count = 20
 

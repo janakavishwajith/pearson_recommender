@@ -60,11 +60,10 @@ def like_movies_for_user(id):
     return like_movies
 
 
-def recommendations():
+def item_based_recommendations():
     user_ = int(input("Type in your user id: "))
     like_movies_for_user(user_)
     # Sum all the values(ratings) row-wise'
     print("These are the movies recommended for you...")
     print(like_movies.sum().sort_values(ascending=False).head(20))
 
-recommendations()
