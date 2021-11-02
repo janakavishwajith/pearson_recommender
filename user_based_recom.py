@@ -1,10 +1,7 @@
 import pandas as pd
-from math import sqrt
 import numpy as np
-import matplotlib.pyplot as plt
 
 ratings_data = pd.read_csv('ml-latest-small/ratings.csv')
-
 movies_data = pd.read_csv('ml-latest-small/movies.csv')
 
 def pearson_correlation(a, b, rated_intersection):
@@ -36,7 +33,7 @@ def matching_users_dataframe(input_user):
     similar_users = list()
 
     for iterative_user_id in rated_all_users:
-        if iterative_user_id != input_user :
+        if iterative_user_id != input_user:
             iterative_user_ratings = ratings_data[ratings_data['userId'] == iterative_user_id]
             rated_intersection = pd.merge(input_user_ratings, iterative_user_ratings, on=['movieId', 'movieId'], how='inner')
             if not rated_intersection.empty:
@@ -110,10 +107,6 @@ def user_based_recommendation():
     top_prections = movies_recommendation.nlargest(recommendable_movies_results_count, 'score')
     for predicted_movie in top_prections.movie:
         print(movies_data[movies_data['movieId']==predicted_movie].title.values[0])
-
-    #print(top_prections['movie'].values)
-
-
 
 
 
