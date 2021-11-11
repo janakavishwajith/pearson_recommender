@@ -1,5 +1,5 @@
 from user_based_recom import user_based_recommendation
-from item_based_recom import item_based_recommendation
+from item_based_recom import item_based_recommendations
 
 path_selection = input("Please select option \n"
                        "[1]. User based recommendation based on Pearson \n"
