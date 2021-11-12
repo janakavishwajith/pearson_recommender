@@ -95,6 +95,29 @@ def movie_predictions(user):
     return movie_recommendations
 
 
+def set_similar_users(user_id_input):
+    global top_similar_users
+
+    similar_user_results_count = 10
+
+    matching_users_movies_data = matching_users_dataframe(user_id_input)
+    top_similar_users = matching_users_movies_data.nlargest(similar_user_results_count, 'correlation')
+
+    print("====== " + str(similar_user_results_count) + " most similar users ======")
+    print(top_similar_users['userId'].values)
+
+
+def get_movie_recommendations(user_id_input):
+    set_similar_users(user_id_input)
+
+    recommendable_movies_results_count = 50
+    print("====== " + str(recommendable_movies_results_count) + " recommending movies for the user " + str(
+        user_id_input) + " ======")
+    movies_recommendation = movie_predictions(user_id_input)
+    top_prections = movies_recommendation.nlargest(recommendable_movies_results_count, 'score')
+
+    return top_prections
+
 
 def user_based_recommendation():
     global top_similar_users
@@ -106,22 +129,11 @@ def user_based_recommendation():
     print(len(ratings_data))
 
     user_id_input = int(input("Type in your user id: "))
-    similar_user_results_count = 10
-    recommendable_movies_results_count = 20
 
-    matching_users_movies_data = matching_users_dataframe(user_id_input)
-    top_similar_users = matching_users_movies_data.nlargest(similar_user_results_count, 'correlation')
-    print("====== "+str(similar_user_results_count)+" most similar users ======")
-    print(top_similar_users['userId'].values)
+    top_predictions = get_movie_recommendations(user_id_input)
 
-    print("====== "+str(recommendable_movies_results_count)+" recommending movies for the user "+str(user_id_input)+" ======")
-    movies_recommendation = movie_predictions(user_id_input)
-    top_prections = movies_recommendation.nlargest(recommendable_movies_results_count, 'score')
-    for predicted_movie in top_prections.movie:
+    for predicted_movie in top_predictions.movie:
         print(movies_data[movies_data['movieId']==predicted_movie].title.values[0])
-
-
-
 
 
 
