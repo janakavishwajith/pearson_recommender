@@ -103,20 +103,20 @@ def set_similar_users(user_id_input):
     matching_users_movies_data = matching_users_dataframe(user_id_input)
     top_similar_users = matching_users_movies_data.nlargest(similar_user_results_count, 'correlation')
 
-    print("====== " + str(similar_user_results_count) + " most similar users ======")
-    print(top_similar_users['userId'].values)
+    # print("====== " + str(similar_user_results_count) + " most similar users ======")
+    # print(top_similar_users['userId'].values)
 
 
-def get_movie_recommendations(user_id_input):
+def get_movie_recommendations(user_id_input, limit):
     set_similar_users(user_id_input)
 
-    recommendable_movies_results_count = 50
-    print("====== " + str(recommendable_movies_results_count) + " recommending movies for the user " + str(
-        user_id_input) + " ======")
     movies_recommendation = movie_predictions(user_id_input)
-    top_prections = movies_recommendation.nlargest(recommendable_movies_results_count, 'score')
+    if limit > 0:
+        top_predictions = movies_recommendation.nlargest(limit, 'score')
+    else:
+        top_predictions = movies_recommendation
 
-    return top_prections
+    return top_predictions
 
 
 def user_based_recommendation():
@@ -130,7 +130,7 @@ def user_based_recommendation():
 
     user_id_input = int(input("Type in your user id: "))
 
-    top_predictions = get_movie_recommendations(user_id_input)
+    top_predictions = get_movie_recommendations(user_id_input, 20)
 
     for predicted_movie in top_predictions.movie:
         print(movies_data[movies_data['movieId']==predicted_movie].title.values[0])
