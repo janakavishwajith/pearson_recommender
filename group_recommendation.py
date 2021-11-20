@@ -52,6 +52,7 @@ def least_misery_aggregation(recommendations_list):
     return recommendations_list
 
 
+print("\n ===== Running group recommendation on user group [9,31,33] ===== ")
 recommend_for_group([9,31,33])
 
 
@@ -91,6 +92,6 @@ def get_kendall_tau_disagreements(input_users, user_wise_recoms):
         kendall_tau_output = kendall_tau_output.append({'user1': combo[0], 'user2': combo[1], 'disagreement': kendall_distance}, ignore_index=True)
     return kendall_tau_output
 
-recommendation_with_distance([9,31,33])
-# test([9,31,33])
 
+print("\n ===== Running group recommendation with disagreement on user group [9,31,33] ===== ")
+recommendation_with_distance([9,31,33])
