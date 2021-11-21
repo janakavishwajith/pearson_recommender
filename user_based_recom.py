@@ -4,6 +4,11 @@ import numpy as np
 ratings_data = pd.read_csv('ml-latest-small/ratings.csv')
 movies_data = pd.read_csv('ml-latest-small/movies.csv')
 
+
+def set_ratings_data(ratings_data_input):
+    global ratings_data
+    ratings_data = ratings_data_input
+
 # Pearson correlation function
 def pearson_correlation(a, b, rated_intersection):
     # Averages for the pearson function

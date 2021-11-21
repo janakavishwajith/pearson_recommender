@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from user_based_recom import get_movie_recommendations
 from user_based_recom import movies_data
 from itertools import combinations
@@ -52,8 +51,8 @@ def least_misery_aggregation(recommendations_list):
     return recommendations_list
 
 
-print("\n ===== Running group recommendation on user group [9,31,33] ===== ")
-recommend_for_group([9,31,33])
+# print("\n ===== Running group recommendation on user group [9,31,33] ===== ")
+# recommend_for_group([9,31,33])
 
 
 # Part B
@@ -93,5 +92,5 @@ def get_kendall_tau_disagreements(input_users, user_wise_recoms):
     return kendall_tau_output
 
 
-print("\n ===== Running group recommendation with disagreement on user group [9,31,33] ===== ")
-recommendation_with_distance([9,31,33])
+# print("\n ===== Running group recommendation with disagreement on user group [9,31,33] ===== ")
+# recommendation_with_distance([9,31,33])
