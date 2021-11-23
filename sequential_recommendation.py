@@ -8,7 +8,7 @@ from user_based_recom import ratings_data, set_ratings_data, movies_data
 
 def seq_recom_for_group(user_group):
     # Splitting data set into 5 parts
-    splitted_data_set = [ratings_data.sample(n=50000), ratings_data.sample(n=18000), ratings_data.sample(n=18000), ratings_data.sample(n=25000), ratings_data.sample(n=20000)]
+    splitted_data_set = [ratings_data.sample(n=50000), ratings_data.sample(n=30000), ratings_data.sample(n=18000), ratings_data.sample(n=20000), ratings_data.sample(n=25000)]
 
     alpha = 0
     iteration_count = 1
@@ -24,6 +24,8 @@ def seq_recom_for_group(user_group):
         dz_scores_j = []
         satisfactions = []
         users_gp = []
+        iteration_movies = []
+        iteration_scores = []
         set_ratings_data(data_set_itr)
         recommendations_list = user_wise_recommendations(user_group)
 
@@ -36,15 +38,23 @@ def seq_recom_for_group(user_group):
             dz_scores_j.append(score_dz_j)
             movie_iterations.append(iteration_count)
 
+        iteration_movies.extend(recommendations_list.movie.unique())
+        iteration_scores.extend(dz_scores_j)
+        iteration_suggestions = pd.DataFrame(list(zip(iteration_movies, iteration_scores)), columns=['movie', 'dz_score'])
+        iteration_suggestions = iteration_suggestions.nlargest(20, 'dz_score')
+
+        print('\n ===== Movies list prediction at iteration ', iteration_count, ' =====')
+        for predicted_movie in iteration_suggestions.movie:
+            print(movies_data[movies_data['movieId'] == predicted_movie].title.values[0])
+
         overall_movies.extend(recommendations_list.movie.unique())
         overall_dz_scores.extend(dz_scores_j)
-        # print(recommendations_list)
 
         # Calculating satisfaction to calculate alpha
         for user in user_group:
             user_list_sat = sum((recommendations_list[recommendations_list['user'] == user]).score)
             group_list_sat = sum(dz_scores_j)
-            satisfaction = np.float64(user_list_sat/group_list_sat)
+            satisfaction = np.float64(group_list_sat/user_list_sat)
             satisfactions.append(satisfaction)
             users_gp.append(user)
             user_iterations.append(iteration_count)
@@ -64,6 +74,9 @@ def seq_recom_for_group(user_group):
     print('\n ===== User-wise satisfaction on each iteration =====')
     print(satisfaction_output)
 
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # # Finding the best iteration to consider for recommender  # #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Finding the dissatisfaction of the outputs
     round_wise_dissatisfaction = pd.DataFrame(columns=['iteration', 'dissatisfaction'])
     for counted_iteration in range(1, iteration_count):
