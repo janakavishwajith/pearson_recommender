@@ -6,8 +6,8 @@ from group_recommendation import user_wise_recommendations
 from user_based_recom import ratings_data, set_ratings_data, movies_data
 
 
-# Finding average of item dz in the group G
 def seq_recom_for_group(user_group):
+    # Splitting data set into 5 parts
     splitted_data_set = [ratings_data.sample(n=50000), ratings_data.sample(n=18000), ratings_data.sample(n=18000), ratings_data.sample(n=25000), ratings_data.sample(n=20000)]
 
     alpha = 0
@@ -19,14 +19,15 @@ def seq_recom_for_group(user_group):
     movie_iterations = []
     user_iterations = []
 
+    # Iterations are done based on splitted data sets, consider 1 by 1 on each iteration
     for data_set_itr in splitted_data_set:
         dz_scores_j = []
         satisfactions = []
         users_gp = []
         set_ratings_data(data_set_itr)
         recommendations_list = user_wise_recommendations(user_group)
-        # average_aggregation = recommendations_list.groupby('movie')['score'].mean().reset_index()
-        # least_mis_aggregation = recommendations_list = recommendations_list.groupby('movie')['score'].min().reset_index()
+
+        # Iterate through the movies list and calculate score against every movie
         for movie in recommendations_list.movie.unique():
             min_score_dz_j = float(recommendations_list[recommendations_list['movie'] == movie].score.min())
             avg_score_dz_j = float(recommendations_list[recommendations_list['movie'] == movie].score.mean())
@@ -38,7 +39,8 @@ def seq_recom_for_group(user_group):
         overall_movies.extend(recommendations_list.movie.unique())
         overall_dz_scores.extend(dz_scores_j)
         # print(recommendations_list)
-        # calculating alpha
+
+        # Calculating satisfaction to calculate alpha
         for user in user_group:
             user_list_sat = sum((recommendations_list[recommendations_list['user'] == user]).score)
             group_list_sat = sum(dz_scores_j)
@@ -53,17 +55,22 @@ def seq_recom_for_group(user_group):
         overall_users.extend(users_gp)
         iteration_count = iteration_count + 1
 
+    # DataFrame that consists the dz score and iterations against every movie that considered
     complete_cycles_output = pd.DataFrame(list(zip(overall_movies, overall_dz_scores, movie_iterations)), columns=['movie', 'dz_score', 'iteration'])
+
+    # Dataframe that contains the user user wise satisfaction in every iteration
     satisfaction_output = pd.DataFrame(list(zip(overall_users, overall_satisfactions, user_iterations)), columns=['user', 'satisfaction', 'iteration'])
 
     print('\n ===== User-wise satisfaction on each iteration =====')
     print(satisfaction_output)
 
+    # Finding the dissatisfaction of the outputs
     round_wise_dissatisfaction = pd.DataFrame(columns=['iteration', 'dissatisfaction'])
     for counted_iteration in range(1, iteration_count):
         current_satisfactions = satisfaction_output[satisfaction_output['iteration'] == counted_iteration]
-        # print(current_satisfactions)
         iteration_dissatisfaction = 0.0
+        # Logic is to identify the satisfaction gap between each users
+        # And adding them together to identify the magnitude of the dissatisfaction among users in a particular iteration
         for combo in combinations(current_satisfactions.user, 2):
             dissatisfaction = abs(float((current_satisfactions[current_satisfactions['user'] == combo[0]]).satisfaction.values[0] - (current_satisfactions[current_satisfactions['user'] == combo[1]]).satisfaction.values[0]))
             iteration_dissatisfaction = iteration_dissatisfaction + dissatisfaction
@@ -72,11 +79,13 @@ def seq_recom_for_group(user_group):
     print('\n ===== Overall dissatisfaction in each round =====')
     print(round_wise_dissatisfaction)
 
+    # Get the round with lowest dissatisfaction
     least_dissatisfaction_round_df = round_wise_dissatisfaction.nsmallest(1, 'dissatisfaction')
     print('\n ===== least dissatisfaction iteration is =====')
     print(least_dissatisfaction_round_df)
     least_dissatisfaction_round = least_dissatisfaction_round_df.head(1).iteration.values[0]
 
+    # Movies list of the iteration that has the least dissatisfaction
     suggestable_movie_list = complete_cycles_output[complete_cycles_output['iteration'] == least_dissatisfaction_round].nlargest(20, 'dz_score')
 
     print('\n ===== Movies suggested from the round ', least_dissatisfaction_round, ' =====')
