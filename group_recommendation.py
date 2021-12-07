@@ -5,7 +5,7 @@ from itertools import combinations
 import scipy.stats as stats
 
 
-def user_wise_recommendations(user_group):
+def user_wise_recommendations(user_group, keep_only_everyone_ranked=True):
     recommendations_list = pd.DataFrame()
 
     for user_id in user_group:
@@ -14,9 +14,10 @@ def user_wise_recommendations(user_group):
         user_movie_recommendations = user_movie_recommendations.assign(user=user_id)
         # building data frame with users all recommendations for movies
         recommendations_list = recommendations_list.append(user_movie_recommendations, ignore_index=True)
-    # TODO: Assumption to mention
-    # Keep only duplicated ones (rated by more than 1 users in the similar users list)
-    recommendations_list = recommendations_list[recommendations_list.groupby('movie')['movie'].transform('size') == len(user_group)]
+
+    if keep_only_everyone_ranked:
+        # Keep only duplicated ones (rated by more than 1 users in the similar users list)
+        recommendations_list = recommendations_list[recommendations_list.groupby('movie')['movie'].transform('size') == len(user_group)]
 
     return recommendations_list
 
