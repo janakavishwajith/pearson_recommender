@@ -85,14 +85,14 @@ def why_not_genre(user_group, genre):
         # This should go through the user level why-not question
 
     # TODO: Uncomment
-    # if suggestion_not_exists.empty:
-    aggregated_results = average_aggregation(recommendations_list)
-    lowest_score = aggregated_results.score.min()
+    if suggestion_not_exists.empty:
+        aggregated_results = average_aggregation(recommendations_list)
+        lowest_score = aggregated_results.score.min()
 
-    for existing_rating_user in existing_in_suggestion.user.unique():
-        if existing_in_suggestion[existing_in_suggestion['user'] == existing_rating_user].score.values[0] < lowest_score:
-            print('\nWHY-NOT? User ', existing_rating_user, ' suggestion score is lower than lowest score...')
-            user_why_not_genre(existing_rating_user, genre)
+        for existing_rating_user in existing_in_suggestion.user.unique():
+            if existing_in_suggestion[existing_in_suggestion['user'] == existing_rating_user].score.values[0] < lowest_score:
+                print('\nWHY-NOT? User ', existing_rating_user, ' suggestion score is lower than lowest score...')
+                user_why_not_genre(existing_rating_user, genre)
 
 
 
